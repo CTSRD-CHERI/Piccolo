@@ -626,7 +626,7 @@ module mkMMU_Cache  #(parameter Bool dmem_not_imem,
    Reg #(Way_in_CSet)  rg_victim_way <- mkRegU;
 
 `ifdef PERFORMANCE_MONITORING
-   Array #(Reg #(EventsCache)) aw_events <- mkDRegOR (7, unpack (0));
+   Array #(Reg #(EventsCache)) aw_events <- mkDRegOR (8, unpack (0));
    Wire #(Bool) wr_mem_req_sent <- mkDWire (False);
    Reg #(Bool)  rg_mem_req_sent <- mkReg (False);
    Reg #(Bool)  rg_cache_rereq_data <- mkReg (False);
@@ -1023,7 +1023,6 @@ module mkMMU_Cache  #(parameter Bool dmem_not_imem,
 	 else begin
 `ifdef PERFORMANCE_MONITORING
       //$display ("DMEM: %0d, LD_MISS: %0d, AMO_MISS: %0d", dmem_not_imem, (rg_op == CACHE_LD && !hit), (rg_op == CACHE_AMO && !hit));
-      events.evt_LD_MISS = rg_mem_req_sent && rg_op == CACHE_LD && !hit;
 `ifdef ISA_A
       events.evt_AMO_MISS = rg_mem_req_sent && rg_op == CACHE_AMO && !hit;
 `endif
@@ -1538,6 +1537,12 @@ module mkMMU_Cache  #(parameter Bool dmem_not_imem,
    rule rl_start_cache_refill (!resetting && (rg_state == CACHE_START_REFILL) && (ctr_wr_rsps_pending.value == 0));
       if (cfg_verbosity > 1)
 	 $display ("%0d: %s.rl_start_cache_refill: ", cur_cycle, d_or_i);
+
+`ifdef PERFORMANCE_MONITORING
+      EventsCache events = unpack (0);
+      events.evt_LD_MISS = rg_op == CACHE_LD;
+      aw_events [7] <= events;
+`endif
 
       // Send burst request into fabric for full cache line
       PA             cline_addr        = fn_align_Addr_to_CLine (rg_pa);
