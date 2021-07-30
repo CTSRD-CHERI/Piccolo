@@ -24,7 +24,7 @@ This repository contains the CHERI-modified versions of the Piccolo processor.
 All builds must have xCHERI following the usual architecture string.
 In addition, the processor currently only supports 32-bits with the CHERI modifications.
 
-More information about the extensions can be found [here](cheri-cpu.org).
+More information about the extensions can be found [here](http://cheri-cpu.org/).
 
 ### About the source codes (in BSV and Verilog)
 
