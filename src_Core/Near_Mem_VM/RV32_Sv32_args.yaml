@@ -3,4 +3,4 @@ bsv_package_name:   Cache_Decls_RV32
 Bits_per_PA:        34
 KB_per_Cache:        4
 Word64s_per_CLine:   4
-Ways_per_CSet:       1
+Ways_per_CSet:       2
