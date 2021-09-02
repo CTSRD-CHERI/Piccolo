@@ -11,7 +11,7 @@ package Cache_Decls_RV32;
 // Bits_per_PA       = 34    (= 0x22)    (bits per physical addr)
 // KB_per_Cache      =  4    (= 0x04)    (cache size)
 // Word128s_per_CLine =  2    (= 0x02)    (cache line size in word128s)
-// Ways_per_CSet     =  1    (= 0x01)    (associativity)
+// Ways_per_CSet     =  2    (= 0x02)    (associativity)
 
 // ================================================================
 // Type decls
@@ -28,10 +28,10 @@ typedef       256   Bits_per_CLine;    // Bytes_per_CLine * 8
 
 // Cache Sets ----------------
 
-typedef         1   Ways_per_CSet;    // (basic; associativity)
-typedef         0   Bits_per_Way_in_CSet;    // log2 (Ways_per_CSet)
+typedef         2   Ways_per_CSet;    // (basic; associativity)
+typedef         1   Bits_per_Way_in_CSet;    // log2 (Ways_per_CSet)
 
-typedef        32   Bytes_per_CSet;    // Ways_per_CSet * Bytes_per_CLine
+typedef        64   Bytes_per_CSet;    // Ways_per_CSet * Bytes_per_CLine
 
 // Cache ----------------
 
@@ -40,12 +40,12 @@ typedef      4096   Bytes_per_Cache;    // KB_per_Cache * 1024
 typedef       256   Word128s_per_Cache;    // Bytes_per_Cache / Bytes_per_Word128
 typedef       128   CLines_per_Cache;    // Bytes_per_Cache / Bytes_per_CLine
 
-typedef       128   CSets_per_Cache;    // Bytes_per_Cache / Bytes_per_CSet
-typedef         7   Bits_per_CSet_in_Cache;    // log2 (CSets_per_Cache)
+typedef        64   CSets_per_Cache;    // Bytes_per_Cache / Bytes_per_CSet
+typedef         6   Bits_per_CSet_in_Cache;    // log2 (CSets_per_Cache)
 
-typedef       256   Word128_Sets_per_Cache;    // CSets_per_Cache * Word128s_per_CLine
-typedef         8   Bits_per_Word128_Set_in_Cache;    // Bits_per_CSet_in_Cache + Bits_per_Word128_in_CLine
-typedef        22   Bits_per_CTag;    // Bits_per_PA - (Bits_per_CSet_in_Cache + Bits_per_Byte_in_CLine)
+typedef       128   Word128_Sets_per_Cache;    // CSets_per_Cache * Word128s_per_CLine
+typedef         7   Bits_per_Word128_Set_in_Cache;    // Bits_per_CSet_in_Cache + Bits_per_Word128_in_CLine
+typedef        23   Bits_per_CTag;    // Bits_per_PA - (Bits_per_CSet_in_Cache + Bits_per_Byte_in_CLine)
 
 // ================================================================
 // Integer decls
@@ -62,10 +62,10 @@ Integer                bits_per_cline =      256;    // Bytes_per_CLine * 8
 
 // Cache Sets ----------------
 
-Integer                 ways_per_cset =        1;    // (basic; associativity)
-Integer          bits_per_way_in_cset =        0;    // log2 (Ways_per_CSet)
+Integer                 ways_per_cset =        2;    // (basic; associativity)
+Integer          bits_per_way_in_cset =        1;    // log2 (Ways_per_CSet)
 
-Integer                bytes_per_cset =       32;    // Ways_per_CSet * Bytes_per_CLine
+Integer                bytes_per_cset =       64;    // Ways_per_CSet * Bytes_per_CLine
 
 // Cache ----------------
 
@@ -74,12 +74,12 @@ Integer               bytes_per_cache =     4096;    // KB_per_Cache * 1024
 Integer            word128s_per_cache =      256;    // Bytes_per_Cache / Bytes_per_Word128
 Integer              clines_per_cache =      128;    // Bytes_per_Cache / Bytes_per_CLine
 
-Integer               csets_per_cache =      128;    // Bytes_per_Cache / Bytes_per_CSet
-Integer        bits_per_cset_in_cache =        7;    // log2 (CSets_per_Cache)
+Integer               csets_per_cache =       64;    // Bytes_per_Cache / Bytes_per_CSet
+Integer        bits_per_cset_in_cache =        6;    // log2 (CSets_per_Cache)
 
-Integer        word128_sets_per_cache =      256;    // CSets_per_Cache * Word128s_per_CLine
-Integer  bits_per_word128_set_in_cache =        8;    // Bits_per_CSet_in_Cache + Bits_per_Word128_in_CLine
-Integer                 bits_per_ctag =       22;    // Bits_per_PA - (Bits_per_CSet_in_Cache + Bits_per_Byte_in_CLine)
+Integer        word128_sets_per_cache =      128;    // CSets_per_Cache * Word128s_per_CLine
+Integer  bits_per_word128_set_in_cache =        7;    // Bits_per_CSet_in_Cache + Bits_per_Word128_in_CLine
+Integer                 bits_per_ctag =       23;    // Bits_per_PA - (Bits_per_CSet_in_Cache + Bits_per_Byte_in_CLine)
 
 // Addrs ----------------
 
@@ -87,12 +87,12 @@ Integer      addr_lo_word128_in_cline =        4;    // addr_hi_byte_in_word128 
 Integer      addr_hi_word128_in_cline =        4;    // addr_lo_word128_in_cline + Bits_per_Word128_in_CLine - 1
 
 Integer         addr_lo_cset_in_cache =        5;    // addr_hi_word128_in_cline + 1
-Integer         addr_hi_cset_in_cache =       11;    // addr_lo_cset_in_cache + Bits_per_CSet_in_Cache - 1
+Integer         addr_hi_cset_in_cache =       10;    // addr_lo_cset_in_cache + Bits_per_CSet_in_Cache - 1
 
 Integer  addr_lo_word128_set_in_cache =        4;    // addr_hi_byte_in_word128 + 1
-Integer  addr_hi_word128_set_in_cache =       11;    // addr_lo_word128_set_in_cache + Bits_per_Word128_Set_in_Cache - 1
+Integer  addr_hi_word128_set_in_cache =       10;    // addr_lo_word128_set_in_cache + Bits_per_Word128_Set_in_Cache - 1
 
-Integer                  addr_lo_ctag =       12;    // addr_hi_cset_in_cache + 1
+Integer                  addr_lo_ctag =       11;    // addr_hi_cset_in_cache + 1
 
 // ================================================================
 // Addresses and address-fields
