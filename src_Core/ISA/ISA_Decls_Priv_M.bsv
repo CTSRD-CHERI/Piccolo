@@ -191,20 +191,20 @@ CSR_Addr   csr_addr_mccsr     = 12'hBC0;    // Machine Capability Control and St
 // ================================================================
 // The width of individual counters
 
-`ifndef COUNTER_WIDTH
-`define COUNTER_WIDTH 64
+`ifndef REPROT_WIDTH
+`define REPORT_WIDTH 64
 `endif
-typedef `COUNTER_WIDTH Counter_Width;
+typedef `REPORT_WIDTH Report_Width;
 
 `ifndef NO_OF_CTRS
 `define NO_OF_CTRS 29
 `endif
 typedef `NO_OF_CTRS No_Of_Ctrs;
 
-`ifndef NO_OF_EVTS
-`define NO_OF_EVTS 96
-`endif
-typedef `NO_OF_EVTS No_Of_Evts;
+//`ifndef NO_OF_EVTS
+//`define NO_OF_EVTS 96
+//`endif
+//typedef `NO_OF_EVTS No_Of_Evts;
 
 // ================================================================
 // MISA

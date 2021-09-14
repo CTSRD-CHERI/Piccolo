@@ -54,6 +54,7 @@ import AXI4       :: *;
 import PerformanceMonitor :: *;
 import Vector             :: *;
 import SpecialRegs        :: *;
+import StatCounters       :: *;
 `endif
 
 // ================================================================
@@ -150,44 +151,44 @@ endfunction
 
 // ================================================================
 
-`ifdef PERFORMANCE_MONITORING
-typedef struct {
-   Bool evt_REDIRECT;
-   Bool evt_TLB_EXC; // TODO: Misleading name
-   Bool evt_BRANCH;
-   Bool evt_JAL;
-   Bool evt_JALR;
-   Bool evt_AUIPC;
-   Bool evt_LOAD;
-   Bool evt_STORE;
-   Bool evt_LR;
-   Bool evt_SC;
-   Bool evt_AMO;
-   Bool evt_SERIAL_SHIFT;
-   Bool evt_INT_MUL_DIV_REM;
-   Bool evt_FP;
-   Bool evt_SC_SUCCESS;
-   Bool evt_LOAD_WAIT;
-   Bool evt_STORE_WAIT;
-   Bool evt_FENCE;
-   Bool evt_F_BUSY_NO_CONSUME;
-   Bool evt_D_BUSY_NO_CONSUME;
-   Bool evt_1_BUSY_NO_CONSUME;
-   Bool evt_2_BUSY_NO_CONSUME;
-   Bool evt_3_BUSY_NO_CONSUME;
-   Bool evt_IMPRECISE_SETBOUND;
-   Bool evt_UNREPRESENTABLE_CAP;
-   Bool evt_MEM_CAP_LOAD;
-   Bool evt_MEM_CAP_STORE;
-   Bool evt_MEM_CAP_LOAD_TAG_SET;
-   Bool evt_MEM_CAP_STORE_TAG_SET;
-} EventsCore deriving (Bits, FShow);
-
-instance BitVectorable #(EventsCore, 1, m) provisos (Bits #(EventsCore, m));
-   function to_vector = struct_to_vector;
-endinstance
-
-`endif
+//`ifdef PERFORMANCE_MONITORING
+//typedef struct {
+//   Bool evt_REDIRECT;
+//   Bool evt_TLB_EXC; // TODO: Misleading name
+//   Bool evt_BRANCH;
+//   Bool evt_JAL;
+//   Bool evt_JALR;
+//   Bool evt_AUIPC;
+//   Bool evt_LOAD;
+//   Bool evt_STORE;
+//   Bool evt_LR;
+//   Bool evt_SC;
+//   Bool evt_AMO;
+//   Bool evt_SERIAL_SHIFT;
+//   Bool evt_INT_MUL_DIV_REM;
+//   Bool evt_FP;
+//   Bool evt_SC_SUCCESS;
+//   Bool evt_LOAD_WAIT;
+//   Bool evt_STORE_WAIT;
+//   Bool evt_FENCE;
+//   Bool evt_F_BUSY_NO_CONSUME;
+//   Bool evt_D_BUSY_NO_CONSUME;
+//   Bool evt_1_BUSY_NO_CONSUME;
+//   Bool evt_2_BUSY_NO_CONSUME;
+//   Bool evt_3_BUSY_NO_CONSUME;
+//   Bool evt_IMPRECISE_SETBOUND;
+//   Bool evt_UNREPRESENTABLE_CAP;
+//   Bool evt_MEM_CAP_LOAD;
+//   Bool evt_MEM_CAP_STORE;
+//   Bool evt_MEM_CAP_LOAD_TAG_SET;
+//   Bool evt_MEM_CAP_STORE_TAG_SET;
+//} EventsCore deriving (Bits, FShow);
+//
+//instance BitVectorable #(EventsCore, 1, m) provisos (Bits #(EventsCore, m));
+//   function to_vector = struct_to_vector;
+//endinstance
+//
+//`endif
 
 // ================================================================
 
@@ -425,36 +426,36 @@ module mkCPU (CPU_IFC);
 	 let funct7 = instr_funct7 (instr_enc);
 	 let funct5rs2 = instr_cap_funct5rs2 (instr_enc);
 	 EventsCore events = unpack (0);
-	 events.evt_LOAD = (   (opcode == op_LOAD)
+	 events.evt_LOAD = zeroExtend(pack(   (opcode == op_LOAD)
 `ifdef ISA_F
 				  || (opcode == op_LOAD_FP)
 `endif
-				  );
-	 events.evt_STORE = (   (opcode == op_STORE)
+				  ));
+	 events.evt_STORE = zeroExtend(pack(   (opcode == op_STORE)
 `ifdef ISA_F
 				   || (opcode == op_STORE_FP)
 `endif
-				   );
+				   ));
 `ifdef ISA_A
-	 events.evt_LR = (opcode == op_AMO) && (funct5 == f5_AMO_LR);
-	 events.evt_SC = (opcode == op_AMO) && (funct5 == f5_AMO_SC);
-	 events.evt_AMO = (opcode == op_AMO) && (funct5 != f5_AMO_LR) && (funct5 != f5_AMO_SC);
+	 events.evt_LR = zeroExtend(pack((opcode == op_AMO) && (funct5 == f5_AMO_LR)));
+	 events.evt_SC = zeroExtend(pack((opcode == op_AMO) && (funct5 == f5_AMO_SC)));
+	 events.evt_AMO = zeroExtend(pack((opcode == op_AMO) && (funct5 != f5_AMO_LR) && (funct5 != f5_AMO_SC)));
 `endif
-	 events.evt_BRANCH = (opcode == op_BRANCH);
-	 events.evt_JAL = (opcode == op_JAL);
-	 events.evt_JALR =    (opcode == op_JALR)
+	 events.evt_BRANCH = zeroExtend(pack(opcode == op_BRANCH));
+	 events.evt_JAL = zeroExtend(pack(opcode == op_JAL));
+	 events.evt_JALR =    zeroExtend(pack((opcode == op_JALR)
                        || (   (funct7 == f7_cap_TwoOp && funct3 == f3_cap_ThreeOp && opcode == op_cap_Manip)
-                           && (funct5rs2 == f5rs2_cap_JALR_CAP || funct5rs2 == f5rs2_cap_JALR_PCC));
-	 events.evt_AUIPC = (opcode == op_AUIPC);
-	 events.evt_SERIAL_SHIFT = (   (   (opcode == op_OP_IMM) || (opcode == op_OP)   )
-					&& (   (funct3 == f3_SLLI) || (funct3 == f3_SRLI) || (funct3 == f3_SRAI)   )   );
+                           && (funct5rs2 == f5rs2_cap_JALR_CAP || funct5rs2 == f5rs2_cap_JALR_PCC))));
+	 events.evt_AUIPC = zeroExtend(pack(opcode == op_AUIPC));
+	 events.evt_SERIAL_SHIFT = zeroExtend(pack(   (   (opcode == op_OP_IMM) || (opcode == op_OP)   )
+					&& (   (funct3 == f3_SLLI) || (funct3 == f3_SRLI) || (funct3 == f3_SRAI)   )   ));
 `ifdef ISA_M
-	 events.evt_INT_MUL_DIV_REM = (   (   (opcode == op_OP) || (opcode == op_OP_32)   )
-					   && f7_is_OP_MUL_DIV_REM (funct7)   );
+	 events.evt_INT_MUL_DIV_REM = zeroExtend(pack(   (   (opcode == op_OP) || (opcode == op_OP_32)   )
+					   && f7_is_OP_MUL_DIV_REM (funct7)   ));
 `endif
 `ifdef ISA_F
-	 events.evt_FP = (   (opcode == op_FP) || (opcode == op_FMADD) || (opcode == op_FMSUB)
-				|| (opcode == op_FNMSUB) || (opcode == op_FNMADD)   );
+	 events.evt_FP = zeroExtend(pack(   (opcode == op_FP) || (opcode == op_FMADD) || (opcode == op_FMSUB)
+				|| (opcode == op_FNMSUB) || (opcode == op_FNMADD)   ));
 `endif
 	 aw_events [count_port] <= events;
       endaction
@@ -875,20 +876,20 @@ module mkCPU (CPU_IFC);
 	 fa_emit_instr_trace (minstret, stage2.out.data_to_stage3.pc, stage2.out.data_to_stage3.instr, rg_cur_priv);
 
 `ifdef PERFORMANCE_MONITORING
-       events.evt_SC_SUCCESS = stage2.out.perf.sc_success;
-       events.evt_MEM_CAP_LOAD = stage2.out.perf.ld_cap;
-       events.evt_MEM_CAP_LOAD_TAG_SET = stage2.out.perf.ld_cap_tag_set;
+       events.evt_SC_SUCCESS = zeroExtend(pack(stage2.out.perf.sc_success));
+       events.evt_MEM_CAP_LOAD = zeroExtend(pack(stage2.out.perf.ld_cap));
+       events.evt_MEM_CAP_LOAD_TAG_SET = zeroExtend(pack(stage2.out.perf.ld_cap_tag_set));
 	 fa_gather_instr_event (stage2.out.data_to_stage3.instr, rg_cur_priv, 0);
 `endif
       end
 
 `ifdef PERFORMANCE_MONITORING
-      events.evt_LOAD_WAIT = stage2.out.perf.ld_wait;
-      events.evt_STORE_WAIT = stage2.out.perf.st_wait;
+      events.evt_LOAD_WAIT = zeroExtend(pack(stage2.out.perf.ld_wait));
+      events.evt_STORE_WAIT = zeroExtend(pack(stage2.out.perf.st_wait));
 
-      events.evt_1_BUSY_NO_CONSUME = (stage1.out.ostatus != OSTATUS_PIPE) && (stage1.out.ostatus != OSTATUS_EMPTY);
-      events.evt_2_BUSY_NO_CONSUME = (stage2.out.ostatus != OSTATUS_PIPE) && (stage2.out.ostatus != OSTATUS_EMPTY) && (stage1.out.ostatus == OSTATUS_PIPE);
-      events.evt_3_BUSY_NO_CONSUME = (stage3.out.ostatus != OSTATUS_PIPE) && (stage3.out.ostatus != OSTATUS_EMPTY) && (stage2.out.ostatus == OSTATUS_PIPE);
+      events.evt_1_BUSY_NO_CONSUME = zeroExtend(pack((stage1.out.ostatus != OSTATUS_PIPE) && (stage1.out.ostatus != OSTATUS_EMPTY)));
+      events.evt_2_BUSY_NO_CONSUME = zeroExtend(pack((stage2.out.ostatus != OSTATUS_PIPE) && (stage2.out.ostatus != OSTATUS_EMPTY) && (stage1.out.ostatus == OSTATUS_PIPE)));
+      events.evt_3_BUSY_NO_CONSUME = zeroExtend(pack((stage3.out.ostatus != OSTATUS_PIPE) && (stage3.out.ostatus != OSTATUS_EMPTY) && (stage2.out.ostatus == OSTATUS_PIPE)));
 `endif
 
       // ----------------
@@ -903,13 +904,13 @@ module mkCPU (CPU_IFC);
 `ifdef PERFORMANCE_MONITORING
             if (   (stage1.out.data_to_stage2.op_stage2 == OP_Stage2_ST)
                 && (stage1.out.data_to_stage2.mem_width_code == w_SIZE_CAP)   ) begin
-              events.evt_MEM_CAP_STORE = True;
+              events.evt_MEM_CAP_STORE = 1;
               CapReg capReg = cast (extract_cap (stage1.out.data_to_stage2.val2));
               CapMem capMem = cast (capReg);
-              events.evt_MEM_CAP_STORE_TAG_SET = isValidCap (capMem);
+              events.evt_MEM_CAP_STORE_TAG_SET = zeroExtend(pack(isValidCap (capMem)));
             end
-	    events.evt_IMPRECISE_SETBOUND =  ! stage1.out.data_to_stage2.check_exact_success;
-	    events.evt_UNREPRESENTABLE_CAP = ! stage1.out.data_to_stage2.set_offset_in_bounds;
+	    events.evt_IMPRECISE_SETBOUND =  zeroExtend(pack(! stage1.out.data_to_stage2.check_exact_success));
+	    events.evt_UNREPRESENTABLE_CAP = zeroExtend(pack(! stage1.out.data_to_stage2.set_offset_in_bounds));
 `endif
 	 end
 
@@ -955,7 +956,7 @@ module mkCPU (CPU_IFC);
 
 `ifdef PERFORMANCE_MONITORING
       EventsCore events = unpack (0);
-      events.evt_TLB_EXC = True;
+      events.evt_TRAP = 1;
       aw_events [2] <= events;
 `endif
 
@@ -1134,16 +1135,17 @@ module mkCPU (CPU_IFC);
    // ================================================================
    // Performance counters
 
-   Vector #(1, Bit #(Counter_Width)) null_evt = replicate (0);
-   Vector #(31, Bit #(Counter_Width)) core_evts_vec = to_large_vector (aw_events [0]);
-   Vector #(16, Bit #(Counter_Width)) imem_evts_vec = to_large_vector (near_mem.imem.events);
-   Vector #(16, Bit #(Counter_Width)) dmem_evts_vec = to_large_vector (near_mem.dmem.events);
-   Vector #(32, Bit #(Counter_Width)) external_evts_vec = to_large_vector (crg_external_evts [0]);
+   //Vector #(1, Bit #(Report_Width)) null_evt = replicate (0);
+   //Vector #(31, Bit #(Report_Width)) core_evts_vec = to_large_vector (aw_events [0]);
+   //Vector #(16, Bit #(Report_Width)) imem_evts_vec = to_large_vector (near_mem.imem.events);
+   //Vector #(16, Bit #(Report_Width)) dmem_evts_vec = to_large_vector (near_mem.dmem.events);
+   //Vector #(32, Bit #(Report_Width)) external_evts_vec = to_large_vector (crg_external_evts [0]);
 
-   let events = append (null_evt, core_evts_vec);
-   events = append (events, imem_evts_vec);
-   events = append (events, dmem_evts_vec);
-   events = append (events, external_evts_vec);
+   //let events = append (null_evt, core_evts_vec);
+   //events = append (events, imem_evts_vec);
+   //events = append (events, dmem_evts_vec);
+   //events = append (events, external_evts_vec);
+   Vector#(No_Of_Evts, Bit#(Report_Width)) events = replicate(0);
 
    (* fire_when_enabled, no_implicit_conditions *)
    rule rl_send_perf_evts;
@@ -1815,7 +1817,7 @@ module mkCPU (CPU_IFC);
                                      stage1.out.data_to_stage2.instr, rg_cur_priv);
 `ifdef PERFORMANCE_MONITORING
       EventsCore events = unpack (0);
-      events.evt_FENCE = True;
+      events.evt_FENCE = 1;
       aw_events [4] <= events;
 `endif
       if (cur_verbosity > 1)

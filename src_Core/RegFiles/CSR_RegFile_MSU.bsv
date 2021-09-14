@@ -42,6 +42,7 @@ import GetPut_Aux :: *;
 
 `ifdef PERFORMANCE_MONITORING
 import PerformanceMonitor :: *;
+import StatCounters       :: *;
 `endif
 
 // ================================================================
@@ -200,7 +201,7 @@ interface CSR_RegFile_IFC;
 
 `ifdef PERFORMANCE_MONITORING
    (* always_ready, always_enabled *)
-   method Action send_performance_events (Vector #(No_Of_Evts, Bit #(Counter_Width)) evts);
+   method Action send_performance_events (Vector #(No_Of_Evts, Bit #(Report_Width)) evts);
 `endif
 
    // Access permission
@@ -350,8 +351,8 @@ deriving (Eq, Bits, FShow);
 
 `ifdef PERFORMANCE_MONITORING
 (* synthesize *)
-module mkPerfCountersPiccolo (PerfCounters_IFC #(No_Of_Ctrs, Counter_Width, Counter_Width, No_Of_Evts));
-  PerfCounters_IFC #(No_Of_Ctrs, Counter_Width, Counter_Width, No_Of_Evts) perf_counters <- mkPerfCounters;
+module mkPerfCountersPiccolo (PerfCounters_IFC #(No_Of_Ctrs, Report_Width, Report_Width, No_Of_Evts));
+  PerfCounters_IFC #(No_Of_Ctrs, Report_Width, Report_Width, No_Of_Evts) perf_counters <- mkPerfCounters;
   return perf_counters;
 endmodule
 `endif
@@ -476,7 +477,7 @@ module mkCSR_RegFile (CSR_RegFile_IFC);
    PulseWire          pw_minstret_incr <- mkPulseWire;
 
 `ifdef PERFORMANCE_MONITORING
-   PerfCounters_IFC #(No_Of_Ctrs, Counter_Width, Counter_Width, No_Of_Evts)
+   PerfCounters_IFC #(No_Of_Ctrs, Report_Width, Report_Width, No_Of_Evts)
       perf_counters <- mkPerfCountersPiccolo;
 
    let ctrs     = perf_counters.read_counters;
@@ -492,7 +493,7 @@ module mkCSR_RegFile (CSR_RegFile_IFC);
 					      cy:        rg_ctr_inhib_ir_cy [0]};
    CSR_Addr      no_of_ctrs  = fromInteger (valueOf (No_Of_Ctrs));
 `else
-   Vector #(0, ReadOnly #(Bit #(Counter_Width))) ctrs     = newVector;
+   Vector #(0, ReadOnly #(Bit #(Report_Width))) ctrs     = newVector;
    Vector #(0, ReadOnly #(Word))                 ctr_sels = newVector;
 
    MCountinhibit ctr_inhibit = word_to_mcountinhibit (0);
@@ -1747,8 +1748,8 @@ module mkCSR_RegFile (CSR_RegFile_IFC);
    endmethod
 
 `ifdef PERFORMANCE_MONITORING
-   method Action send_performance_events (Vector #(No_Of_Evts, Bit #(Counter_Width)) evts);
-      perf_counters.send_performance_events(evts);
+   method Action send_performance_events (Vector #(No_Of_Evts, Bit #(Report_Width)) evts);
+      perf_counters.send_performance_events (evts);
    endmethod
 `endif
 
