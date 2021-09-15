@@ -126,7 +126,7 @@ module mkCore (Core_IFC #(N_External_Interrupt_Sources));
    // CHERI, handle tags internally with a tagController
    let axi4_dmem_shim <- mkTagControllerAXI;
 `ifdef PERFORMANCE_MONITORING
-   tag_cache_evts = axi4_dmem_shim.events;
+   //tag_cache_evts = axi4_dmem_shim.events;
 `endif
 `endif
 `else
@@ -144,6 +144,7 @@ module mkCore (Core_IFC #(N_External_Interrupt_Sources));
    let axi4_dmem_shim_master_monitor <- monitorAXI4_Master (axi4_dmem_shim_master);
    axi4_dmem_shim_master = axi4_dmem_shim_master_monitor.ifc;
    tag_cache_master_evts = to_vector (axi4_dmem_shim_master_monitor.events);
+   //tag_cache_master_evts = replicate(0);
 `endif
 `endif
 `endif
@@ -543,8 +544,8 @@ endmodule: mkCore
 (* synthesize *)
 module mkCore_Synth (Core_IFC_Synth #(N_External_Interrupt_Sources));
    let core <- mkCore;
-   let cpu_imem_master_synth <- toAXI4_Master_Synth (core.cpu_imem_master);
-   let cpu_dmem_master_synth <- toAXI4_Master_Synth (core.cpu_dmem_master);
+   let cpu_imem_master_synth <- toAXI4_Master_Sig (core.cpu_imem_master);
+   let cpu_dmem_master_synth <- toAXI4_Master_Sig (core.cpu_dmem_master);
 `ifdef INCLUDE_DMEM_SLAVE
    let cpu_dmem_slave_synth <- toAXI4Lite_Slave_Synth (core.cpu_dmem_slave);
 `endif
