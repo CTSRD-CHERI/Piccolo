@@ -143,8 +143,8 @@ module mkCore (Core_IFC #(N_External_Interrupt_Sources));
 `ifndef NO_TAG_CACHE
    let axi4_dmem_shim_master_monitor <- monitorAXI4_Master (axi4_dmem_shim_master);
    axi4_dmem_shim_master = axi4_dmem_shim_master_monitor.ifc;
-   tag_cache_master_evts = to_vector (axi4_dmem_shim_master_monitor.events);
-   //tag_cache_master_evts = replicate(0);
+   //tag_cache_master_evts = to_vector (axi4_dmem_shim_master_monitor.events);
+   tag_cache_master_evts = replicate(0);
 `endif
 `endif
 `endif
