@@ -54,8 +54,7 @@ import Fabric_Defs :: *;
 
 `ifdef PERFORMANCE_MONITORING
 import Vector :: *;
-
-typedef 21 ExternalEvtCount;
+import StatCounters :: *;
 `endif
 
 // ================================================================
@@ -156,7 +155,7 @@ interface CPU_IFC;
    // External events to be monitored
 
 `ifdef PERFORMANCE_MONITORING
-   method Action relay_external_events (Vector #(ExternalEvtCount, Bit #(1)) external_evts);
+   method Action relay_external_events (AXI4_Slave_Events slave_evts, AXI4_Master_Events master_evts, EventsCacheCore tag_cache_evts);
 `endif
 
 endinterface

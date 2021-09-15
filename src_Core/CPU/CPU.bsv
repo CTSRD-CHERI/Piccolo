@@ -256,7 +256,9 @@ module mkCPU (CPU_IFC);
 
 `ifdef PERFORMANCE_MONITORING
    Array #(Wire #(EventsCore)) aw_events <- mkDRegOR (5, unpack (0));
-   Array #(Reg #(Vector #(ExternalEvtCount, Bit #(1)))) crg_external_evts <- mkCReg (2, unpack (0));
+   Array #(Reg #(AXI4_Slave_Events)) crg_slave_evts <- mkCReg (2, unpack (0));
+   Array #(Reg #(AXI4_Master_Events)) crg_master_evts <- mkCReg (2, unpack (0));
+   Array #(Reg #(EventsCacheCore)) crg_tag_cache_evts <- mkCReg (2, unpack (0));
 `endif
 
    // ----------------
@@ -1150,7 +1152,9 @@ module mkCPU (CPU_IFC);
    (* fire_when_enabled, no_implicit_conditions *)
    rule rl_send_perf_evts;
       csr_regfile.send_performance_events (events);
-      crg_external_evts [0] <= unpack (0);
+      crg_slave_evts [0] <= unpack (0);
+      crg_master_evts [0] <= unpack (0);
+      crg_tag_cache_evts [0] <= unpack (0);
    endrule
 `endif
 
@@ -2487,8 +2491,10 @@ module mkCPU (CPU_IFC);
 `endif
 
 `ifdef PERFORMANCE_MONITORING
-   method Action relay_external_events (Vector #(ExternalEvtCount, Bit #(1)) external_evts);
-      crg_external_evts [1] <= external_evts;
+   method Action relay_external_events (AXI4_Slave_Events slave_evts, AXI4_Master_Events master_evts, EventsCacheCore tag_cache_evts);
+      crg_slave_evts [1] <= slave_evts;
+      crg_master_evts [1] <= master_evts;
+      crg_tag_cache_evts [1] <= tag_cache_evts;
    endmethod
 `endif
 endmodule: mkCPU
