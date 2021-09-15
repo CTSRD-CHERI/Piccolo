@@ -547,7 +547,7 @@ module mkCore_Synth (Core_IFC_Synth #(N_External_Interrupt_Sources));
    let cpu_imem_master_synth <- toAXI4_Master_Sig (core.cpu_imem_master);
    let cpu_dmem_master_synth <- toAXI4_Master_Sig (core.cpu_dmem_master);
 `ifdef INCLUDE_DMEM_SLAVE
-   let cpu_dmem_slave_synth <- toAXI4Lite_Slave_Synth (core.cpu_dmem_slave);
+   let cpu_dmem_slave_synth <- toAXI4Lite_Slave_Sig (core.cpu_dmem_slave);
 `endif
 
    interface cpu_reset_server = core.cpu_reset_server;
