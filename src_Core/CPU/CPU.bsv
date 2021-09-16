@@ -55,6 +55,7 @@ import PerformanceMonitor :: *;
 import Vector             :: *;
 import SpecialRegs        :: *;
 import StatCounters       :: *;
+import GenerateHPMVector  :: *;
 `endif
 
 // ================================================================
@@ -1137,17 +1138,28 @@ module mkCPU (CPU_IFC);
    // ================================================================
    // Performance counters
 
-   //Vector #(1, Bit #(Report_Width)) null_evt = replicate (0);
    //Vector #(31, Bit #(Report_Width)) core_evts_vec = to_large_vector (aw_events [0]);
+   EventsCore core_evts = aw_events [0];
    //Vector #(16, Bit #(Report_Width)) imem_evts_vec = to_large_vector (near_mem.imem.events);
+   EventsL1I imem_evts = near_mem.imem.events;
+   EventsL1D dmem_evts = near_mem.dmem.events;
    //Vector #(16, Bit #(Report_Width)) dmem_evts_vec = to_large_vector (near_mem.dmem.events);
    //Vector #(32, Bit #(Report_Width)) external_evts_vec = to_large_vector (crg_external_evts [0]);
+   AXI4_Slave_Events slave_evts = crg_slave_evts [0];
+   AXI4_Master_Events master_evts = crg_master_evts [0];
+   EventsCacheCore tag_cache_evts = crg_tag_cache_evts [0];
+
+   let ev_struct = HPMEvents {mab_EventsCore: tagged Valid core_evts, mab_EventsL1I: tagged Valid imem_evts,
+                              mab_EventsL1D: tagged Valid dmem_evts, mab_EventsLL: tagged Invalid,
+                              mab_EventsCacheCore: tagged Valid tag_cache_evts, mab_EventsTransExe: tagged Invalid,
+                              mab_AXI4_Slave_Events: tagged Valid slave_evts, mab_AXI4_Master_Events: tagged Valid master_evts};
 
    //let events = append (null_evt, core_evts_vec);
    //events = append (events, imem_evts_vec);
    //events = append (events, dmem_evts_vec);
    //events = append (events, external_evts_vec);
-   Vector#(No_Of_Evts, Bit#(Report_Width)) events = replicate(0);
+   //Vector#(No_Of_Evts, Bit#(Report_Width)) events = replicate(0);
+   let events = generateHPMVector(ev_struct);
 
    (* fire_when_enabled, no_implicit_conditions *)
    rule rl_send_perf_evts;

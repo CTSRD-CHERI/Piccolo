@@ -60,6 +60,10 @@ import MMU_Cache_Arbiter           :: *;
 import AXI4_Lite_MMU_Cache_Adapter :: *;
 `endif
 
+`ifdef PERFORMANCE_MONITORING
+import StatCounters :: *;
+`endif
+
 // System address map and pc_reset value
 import SoC_Map :: *;
 
@@ -190,7 +194,7 @@ module mkNear_Mem (Near_Mem_IFC);
       method WordXL   tval           = icache.addr;
 
 `ifdef PERFORMANCE_MONITORING
-      method EventsCache events = icache.events;
+      method EventsL1I events = unpack(0);
 `endif
    endinterface
 
@@ -240,7 +244,7 @@ module mkNear_Mem (Near_Mem_IFC);
       method Exc_Code   exc_code   = dcache.exc_code;
 
 `ifdef PERFORMANCE_MONITORING
-      method EventsCache events = dcache.events;
+      method EventsL1D events = unpack(0);
 `endif
    endinterface
 
