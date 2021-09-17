@@ -150,46 +150,6 @@ function Bool fn_is_running (CPU_State  cpu_state);
 	   );
 endfunction
 
-// ================================================================
-
-//`ifdef PERFORMANCE_MONITORING
-//typedef struct {
-//   Bool evt_REDIRECT;
-//   Bool evt_TLB_EXC; // TODO: Misleading name
-//   Bool evt_BRANCH;
-//   Bool evt_JAL;
-//   Bool evt_JALR;
-//   Bool evt_AUIPC;
-//   Bool evt_LOAD;
-//   Bool evt_STORE;
-//   Bool evt_LR;
-//   Bool evt_SC;
-//   Bool evt_AMO;
-//   Bool evt_SERIAL_SHIFT;
-//   Bool evt_INT_MUL_DIV_REM;
-//   Bool evt_FP;
-//   Bool evt_SC_SUCCESS;
-//   Bool evt_LOAD_WAIT;
-//   Bool evt_STORE_WAIT;
-//   Bool evt_FENCE;
-//   Bool evt_F_BUSY_NO_CONSUME;
-//   Bool evt_D_BUSY_NO_CONSUME;
-//   Bool evt_1_BUSY_NO_CONSUME;
-//   Bool evt_2_BUSY_NO_CONSUME;
-//   Bool evt_3_BUSY_NO_CONSUME;
-//   Bool evt_IMPRECISE_SETBOUND;
-//   Bool evt_UNREPRESENTABLE_CAP;
-//   Bool evt_MEM_CAP_LOAD;
-//   Bool evt_MEM_CAP_STORE;
-//   Bool evt_MEM_CAP_LOAD_TAG_SET;
-//   Bool evt_MEM_CAP_STORE_TAG_SET;
-//} EventsCore deriving (Bits, FShow);
-//
-//instance BitVectorable #(EventsCore, 1, m) provisos (Bits #(EventsCore, m));
-//   function to_vector = struct_to_vector;
-//endinstance
-//
-//`endif
 
 // ================================================================
 
@@ -1138,13 +1098,9 @@ module mkCPU (CPU_IFC);
    // ================================================================
    // Performance counters
 
-   //Vector #(31, Bit #(Report_Width)) core_evts_vec = to_large_vector (aw_events [0]);
    EventsCore core_evts = aw_events [0];
-   //Vector #(16, Bit #(Report_Width)) imem_evts_vec = to_large_vector (near_mem.imem.events);
    EventsL1I imem_evts = near_mem.imem.events;
    EventsL1D dmem_evts = near_mem.dmem.events;
-   //Vector #(16, Bit #(Report_Width)) dmem_evts_vec = to_large_vector (near_mem.dmem.events);
-   //Vector #(32, Bit #(Report_Width)) external_evts_vec = to_large_vector (crg_external_evts [0]);
    AXI4_Slave_Events slave_evts = crg_slave_evts [0];
    AXI4_Master_Events master_evts = crg_master_evts [0];
    EventsCacheCore tag_cache_evts = crg_tag_cache_evts [0];
@@ -1154,11 +1110,6 @@ module mkCPU (CPU_IFC);
                               mab_EventsCacheCore: tagged Valid tag_cache_evts, mab_EventsTransExe: tagged Invalid,
                               mab_AXI4_Slave_Events: tagged Valid slave_evts, mab_AXI4_Master_Events: tagged Valid master_evts};
 
-   //let events = append (null_evt, core_evts_vec);
-   //events = append (events, imem_evts_vec);
-   //events = append (events, dmem_evts_vec);
-   //events = append (events, external_evts_vec);
-   //Vector#(No_Of_Evts, Bit#(Report_Width)) events = replicate(0);
    let events = generateHPMVector(ev_struct);
 
    (* fire_when_enabled, no_implicit_conditions *)

@@ -543,17 +543,17 @@ endmodule: mkCore
 (* synthesize *)
 module mkCore_Synth (Core_IFC_Synth #(N_External_Interrupt_Sources));
    let core <- mkCore;
-   let cpu_imem_master_synth <- toAXI4_Master_Sig (core.cpu_imem_master);
-   let cpu_dmem_master_synth <- toAXI4_Master_Sig (core.cpu_dmem_master);
+   let cpu_imem_master_sig <- toAXI4_Master_Sig (core.cpu_imem_master);
+   let cpu_dmem_master_sig <- toAXI4_Master_Sig (core.cpu_dmem_master);
 `ifdef INCLUDE_DMEM_SLAVE
-   let cpu_dmem_slave_synth <- toAXI4Lite_Slave_Sig (core.cpu_dmem_slave);
+   let cpu_dmem_slave_sig <- toAXI4Lite_Slave_Sig (core.cpu_dmem_slave);
 `endif
 
    interface cpu_reset_server = core.cpu_reset_server;
-   interface cpu_imem_master = cpu_imem_master_synth;
-   interface cpu_dmem_master = cpu_dmem_master_synth;
+   interface cpu_imem_master = cpu_imem_master_sig;
+   interface cpu_dmem_master = cpu_dmem_master_sig;
 `ifdef INCLUDE_DMEM_SLAVE
-   interface cpu_dmem_slave = cpu_dmem_slave_synth;
+   interface cpu_dmem_slave = cpu_dmem_slave_sig;
 `endif
    interface core_external_interrupt_sources = core.core_external_interrupt_sources;
    method nmi_req = core.nmi_req;

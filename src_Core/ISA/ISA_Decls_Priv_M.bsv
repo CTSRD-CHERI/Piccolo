@@ -201,11 +201,6 @@ typedef `REPORT_WIDTH Report_Width;
 `endif
 typedef `NO_OF_CTRS No_Of_Ctrs;
 
-//`ifndef NO_OF_EVTS
-//`define NO_OF_EVTS 96
-//`endif
-//typedef `NO_OF_EVTS No_Of_Evts;
-
 // ================================================================
 // MISA
 
