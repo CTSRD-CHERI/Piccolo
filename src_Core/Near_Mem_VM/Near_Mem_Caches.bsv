@@ -187,7 +187,7 @@ module mkNear_Mem (Near_Mem_IFC);
 `ifdef RVFI_DII
       method Tuple2#(Instr,Dii_Id)    instr    = tuple2(truncate(tpl_2(icache.word128)), 0);
 `else
-      method Instr    instr          = truncate(tpl_2(icache.word128));
+      method Instr    instr          = truncate(tpl_2(icache.cword));
 `endif
       method Bool     exc            = icache.exc;
       method Exc_Code exc_code       = icache.exc_code;
@@ -236,7 +236,7 @@ module mkNear_Mem (Near_Mem_IFC);
 
       // CPU side: DMem response
       method Bool       valid      = dcache.valid;
-      method Tuple2#(Bool, Bit #(128))  word128     = dcache.word128;
+      method Tuple2#(Bool, Bit #(128))  word128     = dcache.cword;
 `ifdef ISA_A
       method Bit #(128)  st_amo_val = tpl_2(dcache.st_amo_val);
 `endif
