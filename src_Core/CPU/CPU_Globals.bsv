@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2019 Bluespec, Inc. All Rights Reserved
+// Copyright (c) 2016-2020 Bluespec, Inc. All Rights Reserved
 
 package CPU_Globals;
 
@@ -354,6 +354,10 @@ typedef struct {
    Stage_OStatus          ostatus;
    Trap_Info              trap_info;    // relevant if ostatus == OSTATUS_NONPIPE
 
+`ifdef PERFORMANCE_MONITORING
+   Output_Stage2_Perf     perf;
+`endif
+
    // feedback
    Bypass                 bypass;
 `ifdef ISA_F
@@ -362,11 +366,18 @@ typedef struct {
 
    // feedforward data
    Data_Stage2_to_Stage3  data_to_stage3;
-`ifdef INCLUDE_TANDEM_VERIF
-   Trace_Data             trace_data;
-`endif
    } Output_Stage2
 deriving (Bits);
+
+`ifdef PERFORMANCE_MONITORING
+typedef struct {
+   Bool sc_success;
+   Bool ld_cap;
+   Bool ld_cap_tag_set;
+   Bool ld_wait;
+   Bool st_wait;
+} Output_Stage2_Perf deriving (Bits);
+`endif
 
 instance FShow #(Output_Stage2);
    function Fmt fshow (Output_Stage2 x);
@@ -403,6 +414,10 @@ typedef struct {
    Bit #(5)  fpr_flags;
    WordFL    frd_val;
 `endif
+
+`ifdef INCLUDE_TANDEM_VERIF
+   Trace_Data             trace_data;
+`endif
    } Data_Stage2_to_Stage3
 deriving (Bits);
 
@@ -432,6 +447,10 @@ typedef struct {
    Bypass         bypass;
 `ifdef ISA_F
    FBypass        fbypass;
+`endif
+
+`ifdef INCLUDE_TANDEM_VERIF
+   Trace_Data     trace_data;
 `endif
    } Output_Stage3
 deriving (Bits);

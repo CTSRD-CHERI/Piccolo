@@ -3586,7 +3586,8 @@ module mkCPU(CLK,
   assign f_reset_reqs$D_IN = hart0_server_reset_request_put ;
   assign f_reset_reqs$ENQ = EN_hart0_server_reset_request_put ;
   assign f_reset_reqs$DEQ =
-	     gpr_regfile_RDY_server_reset_request_put__054__ETC___d1066 &&
+	     gpr_regfile$RDY_server_reset_request_put &&
+	     near_mem_RDY_server_reset_request_put__055_AND_ETC___d1067 &&
 	     rg_state == 4'd0 ;
   assign f_reset_reqs$CLR = 1'b0 ;
 
