@@ -41,7 +41,11 @@ CORE_DIRS = $(REPO)/src_Core/CPU:$(REPO)/src_Core/ISA:$(REPO)/src_Core/RegFiles:
 
 TESTBENCH_DIRS  = $(REPO)/src_Testbench/Fabrics/AXI4
 
-BSC_PATH = -p $(CORE_DIRS):src_BSV:$(TESTBENCH_DIRS):+:%/Libraries/TLM3:%/Libraries/Axi:%/Libraries/Axi4
+CONTRIB_DIRS = %/Libraries/Bus:%/Libraries/AMBA_TLM3/TLM3:%/Libraries/AMBA_TLM3/Axi:%/Libraries/AMBA_TLM3/Axi4
+
+BLUESTUFF_DIRS = $(REPO)/src_Core/BSV_Additional_Libs/BlueStuff:$(REPO)/src_Core/BSV_Additional_Libs/BlueStuff/BlueUtils:$(REPO)/src_Core/BSV_Additional_Libs/BlueStuff/BlueBasics
+
+BSC_PATH = -p $(CORE_DIRS):src_BSV:$(TESTBENCH_DIRS):$(CONTRIB_DIRS):$(BLUESTUFF_DIRS):+
 
 # ----------------
 # Top-level file and module
