@@ -79,6 +79,10 @@ import Near_Mem_Caches :: *;
 import Near_Mem_TCM :: *;
 `endif
 
+`ifdef INCLUDE_PMPS
+import PMPU_IFC :: *;
+`endif
+
 `ifdef INCLUDE_GDB_CONTROL
 import Debug_Module   :: *;
 import DM_CPU_Req_Rsp :: *;
@@ -606,9 +610,8 @@ module mkCPU (CPU_IFC);
 				 || (stage1.out.ostatus == OSTATUS_NONPIPE));
 
 `ifdef INCLUDE_GDB_CONTROL
-   Bool stop_step_halt = (   stage1_has_instr
-			  && (   rg_stop_req
-			      || rg_step_count == 1));
+   Bool stop_step_req = (   rg_stop_req
+             || rg_step_count == 1);
 `else
    Bool stop_step_req = False;
 `endif
@@ -617,7 +620,7 @@ module mkCPU (CPU_IFC);
    Bool stop_step_halt = stage1_has_arch_instr && stop_step_req;
 
    // Halting conditions
-   Bool halting = (stop_step_halt || mip_cmd_needed || (interrupt_pending && stage1_has_instr));
+   Bool halting = (stop_step_halt || mip_cmd_needed || (interrupt_pending && stage1_has_arch_instr));
    // Stage1 can halt only when actually contains an instruction and downstream is empty
    Bool stage1_halted = (   halting
 			 && (   (stage1.out.ostatus == OSTATUS_PIPE)
@@ -1034,9 +1037,9 @@ module mkCPU (CPU_IFC);
 	 else
 `endif
          begin
-	    new_csr_val <- csr_regfile.mav_csr_write (csr_addr, rs1_val);
-	    let new_csr_val       = csr_write_result.new_csr_value;
-	    let m_new_mstatus     = csr_write_result.m_new_csr_value2;
+	    let csr_write_result <- csr_regfile.mav_csr_write (csr_addr, rs1_val);
+	    new_csr_val       = csr_write_result.new_csr_value;
+	    let m_new_mstatus         = csr_write_result.m_new_csr_value2;
 	 end
 
 	 // Accounting
@@ -1047,7 +1050,7 @@ module mkCPU (CPU_IFC);
 
 `ifdef INCLUDE_TANDEM_VERIF
 	 // Trace data
-	 let trace_data = mkTrace_CSRRX (rg_trap_trace_data.pc,
+	 /*let trace_data = mkTrace_CSRRX (rg_trap_trace_data.pc,
 					 rg_trap_trace_data.instr_sz,
 					 rg_trap_trace_data.instr,
 					 rd,
@@ -1057,7 +1060,7 @@ module mkCPU (CPU_IFC);
 					 new_csr_val,
 					 isValid (m_new_mstatus),
 					 fromMaybe (?, m_new_mstatus));
-	 f_trace_data.enq (trace_data);
+	 f_trace_data.enq (trace_data);*/
 `endif
 
 	 // Debug
@@ -1158,8 +1161,6 @@ module mkCPU (CPU_IFC);
 	 let new_rd_val = csr_val;
 	 gpr_regfile.write_rd (rd, new_rd_val);
 
-	 // Writeback to CSR file, but only if rs1 != 0
-	 WordXL          new_csr_val = ?;
 	 Maybe #(WordXL) m_new_mstatus = tagged Invalid;
 	 let x = (  ((funct3 == f3_CSRRS) || (funct3 == f3_CSRRSI))
 		  ? (csr_val | rs1_val)                // CSRRS, CSRRSI

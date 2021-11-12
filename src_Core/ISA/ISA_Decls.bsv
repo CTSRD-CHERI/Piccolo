@@ -373,12 +373,6 @@ typedef enum { Access_RWX_R, Access_RWX_W, Access_RWX_X } Access_RWX
 deriving (Eq, Bits, FShow);
 
 // ================================================================
-// Kinds of memory access (excluding AMOs)
-
-typedef enum { Access_RWX_R, Access_RWX_W, Access_RWX_X } Access_RWX
-deriving (Eq, Bits, FShow);
-
-// ================================================================
 // Data sizes for LOAD/STORE
 
 typedef enum {BITS8,

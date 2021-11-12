@@ -56,7 +56,7 @@ import Cur_Cycle     :: *;
 import GetPut_Aux    :: *;
 import Semi_FIFOF    :: *;
 import CreditCounter :: *;
-import SourceSink    :: *;
+//import SourceSink    :: *;
 
 `ifdef PERFORMANCE_MONITORING
 import SpecialRegs :: *;
@@ -978,7 +978,7 @@ module mkMMU_Cache  #(parameter Bool dmem_not_imem)  (MMU_Cache_IFC);
 	 end
 
 	 // Access to non-memory
-	 if (dmem_not_imem && (! is_mem_addr)) begin
+	 else if (dmem_not_imem && (! is_mem_addr)) begin
 	    // IO requests
 	    rg_state <= IO_REQ;
 
