@@ -2278,6 +2278,10 @@
         <spirit:fileType>verilogSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
+        <spirit:name>hdl/mkPMPU.v</spirit:name>
+        <spirit:fileType>verilogSource</spirit:fileType>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/mkNear_Mem.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
       </spirit:file>
