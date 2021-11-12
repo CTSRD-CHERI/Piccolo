@@ -172,7 +172,10 @@ module mkCPU_Stage1 #(Bit #(4)         verbosity,
 				frs1_val       : frs1_val_bypassed,
 				frs2_val       : frs2_val_bypassed,
 				frs3_val       : frs3_val_bypassed,
-				fcsr_frm       : csr_regfile.read_frm,
+				frm            : csr_regfile.read_frm,
+`ifdef INCLUDE_TANDEM_VERIF
+                                fflags         : csr_regfile.read_fflags,
+`endif
 `endif
 				mstatus        : csr_regfile.read_mstatus,
 				misa           : csr_regfile.read_misa };
@@ -187,8 +190,12 @@ module mkCPU_Stage1 #(Bit #(4)         verbosity,
 					       val1          : alu_outputs.val1,
 					       val2          : alu_outputs.val2,
 `ifdef ISA_F
-					       val3          : alu_outputs.val3,
+					       fval1         : alu_outputs.fval1,
+					       fval2         : alu_outputs.fval2,
+					       fval3         : alu_outputs.fval3,
 					       rd_in_fpr     : alu_outputs.rd_in_fpr,
+					       rs_frm_fpr    : alu_outputs.rs_frm_fpr,
+					       val1_frm_gpr  : alu_outputs.val1_frm_gpr,
 					       rounding_mode : alu_outputs.rm,
 `endif
 `ifdef INCLUDE_TANDEM_VERIF
@@ -212,10 +219,17 @@ module mkCPU_Stage1 #(Bit #(4)         verbosity,
 	 output_stage1.ostatus = OSTATUS_BUSY;
       end
 
-      // Stall if bypass pending for rs1 or rs2
+      // Stall if bypass pending for GPR rs1 or rs2
       else if (rs1_busy || rs2_busy) begin
 	 output_stage1.ostatus = OSTATUS_BUSY;
       end
+
+`ifdef ISA_F
+      // Stall if bypass pending for FPR rs1, rs2 or rs3
+      else if (frs1_busy || frs2_busy || frs3_busy) begin
+	 output_stage1.ostatus = OSTATUS_BUSY;
+      end
+`endif
 
       // Trap on fetch-exception
       else if (imem.exc) begin

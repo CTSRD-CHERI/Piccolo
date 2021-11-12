@@ -16,12 +16,22 @@ import ISA_Decls       :: *;
 import AXI4_Types  :: *;
 import Fabric_Defs :: *;
 
+`ifdef INCLUDE_DMEM_SLAVE
+import AXI4_Lite_Types :: *;
+`endif
+
 `ifdef INCLUDE_GDB_CONTROL
 import DM_CPU_Req_Rsp :: *;
 `endif
 
 `ifdef INCLUDE_TANDEM_VERIF
 import TV_Info         :: *;
+`endif
+
+`ifdef PERFORMANCE_MONITORING
+import Vector :: *;
+
+typedef 19 ExternalEvtCount;
 `endif
 
 // ================================================================
@@ -39,6 +49,13 @@ interface CPU_IFC;
 
    // DMem to Fabric master interface
    interface AXI4_Master_IFC #(Wd_Id, Wd_Addr, Wd_Data, Wd_User)  dmem_master;
+
+   // ----------------------------------------------------------------
+   // Optional AXI4-Lite D-cache slave interface
+
+`ifdef INCLUDE_DMEM_SLAVE
+   interface AXI4_Lite_Slave_IFC #(Wd_Addr, Wd_Data, Wd_User)  dmem_slave;
+`endif
 
    // ----------------
    // External interrupts
@@ -94,6 +111,13 @@ interface CPU_IFC;
 
    // CSR access
    interface Server #(DM_CPU_Req #(12, XLEN), DM_CPU_Rsp #(XLEN)) hart0_csr_mem_server;
+`endif
+
+   // ----------------
+   // External events to be monitored
+
+`ifdef PERFORMANCE_MONITORING
+   method Action relay_external_events (Vector #(ExternalEvtCount, Bit #(1)) external_evts);
 `endif
 
 endinterface

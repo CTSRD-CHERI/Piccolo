@@ -39,7 +39,38 @@ import PMPU_IFC    :: *;
 import AXI4_Types  :: *;
 import Fabric_Defs :: *;
 
+`ifdef PERFORMANCE_MONITORING
+import PerformanceMonitor :: *;
+`endif
+
+`ifdef INCLUDE_DMEM_SLAVE
+import AXI4_Lite_Types :: *;
+`endif
+
 // ================================================================
+
+`ifdef PERFORMANCE_MONITORING
+typedef struct {
+   Bool evt_LD;
+   Bool evt_LD_MISS;
+   Bool evt_LD_MISS_LAT;
+   Bool evt_ST;
+   Bool evt_ST_MISS;     // Unimplemented
+   Bool evt_ST_MISS_LAT; // Unimplemented
+   Bool evt_AMO;
+   Bool evt_AMO_MISS;
+   Bool evt_AMO_MISS_LAT;
+   Bool evt_TLB;
+   Bool evt_TLB_MISS;     // Only leaf is stored in TLB thus a full
+   Bool evt_TLB_MISS_LAT; // walk must happen every miss
+   Bool evt_TLB_FLUSH;
+   Bool evt_EVICT;
+} EventsCache deriving (Bits, FShow);
+
+instance BitVectorable #(EventsCache, 1, m) provisos (Bits #(EventsCache, m));
+      function to_vector = struct_to_vector;
+endinstance
+`endif
 
 interface Near_Mem_IFC;
    // Reset
@@ -62,6 +93,13 @@ interface Near_Mem_IFC;
 
    // Fabric side
    interface AXI4_Master_IFC #(Wd_Id, Wd_Addr, Wd_Data, Wd_User) dmem_master;
+
+   // ----------------------------------------------------------------
+   // Optional AXI4-Lite DMem slave interface
+
+`ifdef INCLUDE_DMEM_SLAVE
+   interface AXI4_Lite_Slave_IFC #(Wd_Addr, Wd_Data, Wd_User) dmem_slave;
+`endif
 
    // ----------------
    // Fences
@@ -110,6 +148,10 @@ interface IMem_IFC;
    (* always_ready *)  method Bool     exc;
    (* always_ready *)  method Exc_Code exc_code;
    (* always_ready *)  method WordXL   tval;        // can be different from PC
+
+`ifdef PERFORMANCE_MONITORING
+   method EventsCache events;
+`endif
 endinterface
 
 // ================================================================
@@ -137,6 +179,10 @@ interface DMem_IFC;
    (* always_ready *)  method Bit #(64)  st_amo_val;  // Final store-value for ST, SC, AMO
    (* always_ready *)  method Bool       exc;
    (* always_ready *)  method Exc_Code   exc_code;
+
+`ifdef PERFORMANCE_MONITORING
+   method EventsCache events;
+`endif
 endinterface
 
 // ================================================================
