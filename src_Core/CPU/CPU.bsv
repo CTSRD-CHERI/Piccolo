@@ -390,7 +390,7 @@ module mkCPU (CPU_IFC);
 `endif
 `ifdef ISA_F
 	 events.evt_FP = (   (opcode == op_FP) || (opcode == op_FMADD) || (opcode == op_FMSUB)
-				|| (opcode == op_FNMSUB) || (opcode == op_FNMADD);
+				|| (opcode == op_FNMSUB) || (opcode == op_FNMADD) );
 `endif
 	 aw_events [count_port] <= events;
       endaction

@@ -1405,8 +1405,10 @@ module mkMMU_Cache  #(parameter Bool dmem_not_imem)  (MMU_Cache_IFC);
 	 PA           lev_0_pte_pa_w64    = { lev_0_pte_pa [pa_sz - 1 : 3], 3'b0 };    // 64b-aligned addr
 	 Fabric_Addr  lev_0_pte_pa_w64_fa = fn_PA_to_Fabric_Addr (lev_0_pte_pa_w64);
 `ifdef SV32
+   MemReqSize   mem_req_size = f3_SIZE_W;
 	 AXI4_Size    axi4_size           = axsize_4;
 `else
+   MemReqSize   mem_req_size = f3_SIZE_D;
 	 AXI4_Size    axi4_size           = axsize_8;
 `endif
 	 Bool pmp_ok <- pmpu.permitted (lev_0_pte_pa, mem_req_size, s_Priv_Mode, Access_RWX_R);
@@ -1448,6 +1450,7 @@ module mkMMU_Cache  #(parameter Bool dmem_not_imem)  (MMU_Cache_IFC);
 	    end
 	 end
       end
+   end
    endrule: rl_ptw_level_1
 
    // ----------------
