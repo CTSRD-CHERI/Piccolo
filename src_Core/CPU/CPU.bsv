@@ -219,7 +219,7 @@ module mkCPU (CPU_IFC);
    Array #(Wire #(EventsCore)) aw_events <- mkDRegOR (5, unpack (0));
    Array #(Reg #(AXI4_Slave_Events)) crg_slave_evts <- mkCReg (2, unpack (0));
    Array #(Reg #(AXI4_Master_Events)) crg_master_evts <- mkCReg (2, unpack (0));
-   Array #(Reg #(EventsCacheCore)) crg_tag_cache_evts <- mkCReg (2, unpack (0));
+   Array #(Reg #(EventsTGC)) crg_tag_cache_evts <- mkCReg (2, unpack (0));
 `endif
 
    // ----------------
@@ -1103,11 +1103,11 @@ module mkCPU (CPU_IFC);
    EventsL1D dmem_evts = near_mem.dmem.events;
    AXI4_Slave_Events slave_evts = crg_slave_evts [0];
    AXI4_Master_Events master_evts = crg_master_evts [0];
-   EventsCacheCore tag_cache_evts = crg_tag_cache_evts [0];
+   EventsTGC tag_cache_evts = crg_tag_cache_evts [0];
 
    let ev_struct = HPMEvents {mab_EventsCore: tagged Valid core_evts, mab_EventsL1I: tagged Valid imem_evts,
                               mab_EventsL1D: tagged Valid dmem_evts, mab_EventsLL: tagged Invalid,
-                              mab_EventsCacheCore: tagged Valid tag_cache_evts, mab_EventsTransExe: tagged Invalid,
+                              mab_EventsTGC: tagged Valid tag_cache_evts, mab_EventsTransExe: tagged Invalid,
                               mab_AXI4_Slave_Events: tagged Valid slave_evts, mab_AXI4_Master_Events: tagged Valid master_evts};
 
    let events = generateHPMVector(ev_struct);
@@ -2454,7 +2454,7 @@ module mkCPU (CPU_IFC);
 `endif
 
 `ifdef PERFORMANCE_MONITORING
-   method Action relay_external_events (AXI4_Slave_Events slave_evts, AXI4_Master_Events master_evts, EventsCacheCore tag_cache_evts);
+   method Action relay_external_events (AXI4_Slave_Events slave_evts, AXI4_Master_Events master_evts, EventsTGC tag_cache_evts);
       crg_slave_evts [1] <= slave_evts;
       crg_master_evts [1] <= master_evts;
       crg_tag_cache_evts [1] <= tag_cache_evts;

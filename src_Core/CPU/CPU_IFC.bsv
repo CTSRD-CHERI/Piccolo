@@ -155,7 +155,7 @@ interface CPU_IFC;
    // External events to be monitored
 
 `ifdef PERFORMANCE_MONITORING
-   method Action relay_external_events (AXI4_Slave_Events slave_evts, AXI4_Master_Events master_evts, EventsCacheCore tag_cache_evts);
+   method Action relay_external_events (AXI4_Slave_Events slave_evts, AXI4_Master_Events master_evts, EventsTGC tag_cache_evts);
 `endif
 
 endinterface

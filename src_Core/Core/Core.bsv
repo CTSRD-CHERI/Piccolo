@@ -88,6 +88,7 @@ import PerformanceMonitor :: *;
 import Monitored :: *;
 import AXI4_Events_BitVectorable_Instance :: *; // the lesser evil
 import StatCounters :: *;
+import CacheCore :: *;
 `endif
 
 // ================================================================
@@ -110,7 +111,7 @@ module mkCore (Core_IFC #(N_External_Interrupt_Sources));
    let imem_master = extendIDFields(zeroMasterUserFields(delay_shim.master), 0);
 
 `ifdef PERFORMANCE_MONITORING
-   EventsCacheCore tag_cache_evts = unpack (0);
+   EventsTGC tag_cache_evts = unpack (0);
    AXI4_Master_Events master_evts = unpack (0);
 `endif
    // set the appropriate axi4_dmem_shim_{master, slave} ifc
@@ -127,7 +128,17 @@ module mkCore (Core_IFC #(N_External_Interrupt_Sources));
    // CHERI, handle tags internally with a tagController
    let axi4_dmem_shim <- mkTagControllerAXI;
 `ifdef PERFORMANCE_MONITORING
-   tag_cache_evts = axi4_dmem_shim.events;
+   let evts = axi4_dmem_shim.events;
+   tag_cache_evts = EventsTGC { evt_WRITE : zeroExtend(pack(evts.evt_WRITE))
+                              , evt_WRITE_MISS : zeroExtend(pack(evts.evt_WRITE_MISS))
+                              , evt_READ : zeroExtend(pack(evts.evt_READ))
+                              , evt_READ_MISS : zeroExtend(pack(evts.evt_READ_MISS))
+                              , evt_EVICT : zeroExtend(pack(evts.evt_EVICT))
+`ifdef USECAP
+                              , evt_SET_TAG_WRITE : zeroExtend(pack(evts.evt_SET_TAG_WRITE))
+                              , evt_SET_TAG_READ : zeroExtend(pack(evts.evt_SET_TAG_READ))
+`endif
+                              };
 `endif
 `endif
 `else
