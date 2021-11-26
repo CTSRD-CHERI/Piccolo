@@ -69,6 +69,8 @@ AXI_DIRS = $(BLUESTUFF)/AXI:$(BLUESTUFF)/BlueBasics:$(BLUESTUFF):
 
 BSC_PATH = -p $(CORE_DIRS)src_BSV:$(AXI_DIRS)$(CHERI_DIR)$(TAG_CONTROLLER_DIRS)+
 
+RISCV_HPM_Events_DIR = $(REPO)/libs/RISCV_HPM_Events
+
 # ----------------
 # Top-level file and module
 
@@ -101,6 +103,21 @@ src_BSV/TagTableStructure.bsv: $(REPO)/libs/TagController/tagsparams.py
 	$^ -v -c $(CAPSIZE) -s $(TAGS_STRUCT:"%"=%) -a $(TAGS_ALIGN) --data-store-base-addr 0xc0000000  -b $@ 0x3fffc000 0xfffff000
 	@echo "INFO: Re-generated CHERI tag controller parameters"
 
+.PHONY: generate_hpm_vector
+generate_hpm_vector: GenerateHPMVector.bsv
+GenerateHPMVector.bsv: $(RISCV_HPM_Events_DIR)/parse_counters.py
+	@echo "INFO: Re-generating GenerateHPMVector bluespec file"
+	$^ $(RISCV_HPM_Events_DIR)/counters.yaml -m ISA_Decls -b $@
+	@echo "INFO: Re-generated GenerateHPMVector bluespec file"
+
+
+.PHONY: stat_counters
+stat_counters: StatCounters.bsv
+StatCounters.bsv: $(RISCV_HPM_Events_DIR)/parse_counters.py
+	@echo "INFO: Re-generating HPM events struct bluepsec file"
+	$^ $(RISCV_HPM_Events_DIR)/counters.yaml -m ISA_Decls -s $@
+	@echo "INFO: Re-generated HPM events struct bluespec file"
+
 # ================================================================
 # Generate Verilog RTL from BSV sources (needs Bluespec 'bsc' compiler)
 
@@ -113,7 +130,7 @@ Verilog_RTL:
 	mkdir -p $@
 
 .PHONY: compile
-compile:  build_dir  Verilog_RTL tagsparams
+compile:  build_dir tagsparams stat_counters generate_hpm_vector Verilog_RTL
 	@echo  "INFO: Generating RTL into Verilog_RTL ..."
 	bsc -u -elab -verilog  $(RTL_GEN_DIRS)  $(BSC_COMPILATION_FLAGS)  $(BSC_PATH)  $(TOPFILE)
 	@echo  "INFO: Generated RTL into Verilog_RTL"

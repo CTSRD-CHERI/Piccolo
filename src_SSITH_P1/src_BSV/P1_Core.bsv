@@ -84,11 +84,11 @@ interface P1_Core_IFC;
    // Core CPU interfaces
 
    // CPU IMem to Fabric master interface
-   interface AXI4_Master_Synth #(Wd_MId, Wd_Addr, Wd_Data,
+   interface AXI4_Master_Sig #(Wd_MId, Wd_Addr, Wd_Data,
                                  0, 0, 0, 0, 0) master0;
 
    // CPU DMem (incl. I/O) to Fabric master interface
-   interface AXI4_Master_Synth #( Wd_MId_ext, Wd_Addr, Wd_Data
+   interface AXI4_Master_Sig #( Wd_MId_ext, Wd_Addr, Wd_Data
                                 , Wd_AW_User_ext, Wd_W_User_ext, Wd_B_User_ext
                                 , Wd_AR_User_ext, Wd_R_User_ext) master1;
 
@@ -100,7 +100,7 @@ interface P1_Core_IFC;
    // ----------------------------------------------------------------
    // Optional AXI4-Lite D-cache slave interface
 
-   interface AXI4_Lite_Slave_IFC #(Wd_Addr, Wd_Data, Wd_User) slave0;
+   interface AXI4Lite_Slave_Sig #(Wd_Addr, Wd_Data, 0, 0, 0, 0, 0) slave0;
 `endif
 
 `ifdef INCLUDE_TANDEM_VERIF
@@ -271,7 +271,7 @@ module mkP1_Core (P1_Core_IFC);
    // ----------------------------------------------------------------
    // Optional AXI4-Lite D-cache slave interface
 
-   interface AXI4_Lite_Slave_IFC slave0 = core.cpu_dmem_slave;
+   interface AXI4Lite_Slave_Sig slave0 = core.cpu_dmem_slave;
 `endif
 
 `ifdef INCLUDE_TANDEM_VERIF
