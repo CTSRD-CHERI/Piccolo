@@ -551,7 +551,7 @@ endfunction
 
 (* synthesize *)
 module mkMMU_DCache(MMU_DCache_IFC);
-  MMU_Cache_IFC#(Wd_MId_2x3) cache <- mkMMU_Cache(False, fabric_2x3_default_mid);
+  MMU_Cache_IFC#(Wd_MId_2x3) cache <- mkMMU_Cache(True, fabric_2x3_default_mid);
   EventsL1D evts = EventsL1D { evt_LD           : zeroExtend(pack(cache.events.evt_LD))
                              , evt_LD_MISS      : zeroExtend(pack(cache.events.evt_LD_MISS))
                              , evt_LD_MISS_LAT  : zeroExtend(pack(cache.events.evt_LD_MISS_LAT))
@@ -592,7 +592,7 @@ module mkMMU_DCache(MMU_DCache_IFC);
 endmodule
 (* synthesize *)
 module mkMMU_ICache(MMU_ICache_IFC);
-  MMU_Cache_IFC#(Wd_MId) cache <- mkMMU_Cache(True, fabric_default_mid);
+  MMU_Cache_IFC#(Wd_MId) cache <- mkMMU_Cache(False, fabric_default_mid);
   EventsL1I evts = EventsL1I { evt_LD           : zeroExtend(pack(cache.events.evt_LD))
                              , evt_LD_MISS      : zeroExtend(pack(cache.events.evt_LD_MISS))
                              , evt_LD_MISS_LAT  : zeroExtend(pack(cache.events.evt_LD_MISS_LAT))
