@@ -139,6 +139,10 @@ module mkCPU_Stage1 #(Bit #(4)         verbosity,
       f_reset_rsps.enq (?);
    endrule
 
+   rule rl_commit;
+      imem.commit; // always commit to imem, meaning OOB reads can happen over instr interface
+   endrule
+
    // ----------------
    // ALU
 
