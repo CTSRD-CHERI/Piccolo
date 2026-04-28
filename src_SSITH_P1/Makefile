@@ -87,11 +87,16 @@ TOPMODULE = mkP1_Core
 # Error: Command line: (S0008)
 #   Unrecognized flag: -no-show-timestamps
 # XXX
+
+# Detect if the compiler supports the new "let-gen" option
+MAYBE_LET_GEN:=$(shell bsc -let-gen 2>&1 | grep -q "Unrecognized" || echo -let-gen)
+
 BSC_COMPILATION_FLAGS += \
 	-keep-fires -aggressive-conditions -no-warn-action-shadowing \
 	-suppress-warnings G0020    \
 	+RTS -K128M -RTS  -show-range-conflict \
-    -unspecified-to X -opt-undetermined-vals
+    -unspecified-to X -opt-undetermined-vals \
+    $(MAYBE_LET_GEN)
 
 # ================================================================
 # Generate Bluespec CHERI tag controller source file

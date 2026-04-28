@@ -65,6 +65,10 @@ TOPMODULE ?= mkTop_HW_Side
 # Error: Command line: (S0008)
 #   Unrecognized flag: -no-show-timestamps
 # XXX
+
+# Detect if the compiler supports the new "let-gen" option
+MAYBE_LET_GEN:=$(shell bsc -let-gen 2>&1 | grep -q "Unrecognized" || echo -let-gen)
+
 BSC_COMPILATION_FLAGS += \
 	-D CheriBusBytes=8 \
 	-D CheriMasterIDWidth=1 -D CheriTransactionIDWidth=5 \
@@ -72,7 +76,8 @@ BSC_COMPILATION_FLAGS += \
 	-D CAP64 \
 	-keep-fires -aggressive-conditions -no-warn-action-shadowing -check-assert \
 	-suppress-warnings G0020    \
-	+RTS -K128M -RTS  -show-range-conflict
+	+RTS -K128M -RTS  -show-range-conflict \
+        $(MAYBE_LET_GEN)
 	#-D NOTAG
 
 # ================================================================
